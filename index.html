@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>TruthLens AI</title>
+<style>
+body{
+  font-family:Arial;
+  background:#0f2027;
+  color:white;
+  text-align:center;
+  padding:40px;
+}
+.container{
+  background:#203a43;
+  padding:30px;
+  border-radius:15px;
+  width:60%;
+  margin:auto;
+}
+input{
+  width:80%;
+  padding:10px;
+  border-radius:8px;
+  border:none;
+}
+button{
+  margin-top:20px;
+  padding:10px 25px;
+  border:none;
+  border-radius:8px;
+  background:#00c6ff;
+}
+.card{
+  margin-top:30px;
+  padding:20px;
+  border-radius:10px;
+  background:#2c5364;
+}
+.progress{
+  width:100%;
+  background:#444;
+  border-radius:10px;
+  margin-top:10px;
+}
+.progress-bar{
+  height:20px;
+  border-radius:10px;
+}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>🛡 TruthLens AI</h1>
+<p>Paste any news link to verify credibility</p>
+
+<input type="text" id="newsUrl" placeholder="https://example.com/article">
+<br>
+<button onclick="verify()">Analyze</button>
+
+<div id="result"></div>
+</div>
+
+<script>
+async function verify(){
+  const url = document.getElementById("newsUrl").value;
+  const resultDiv = document.getElementById("result");
+  resultDiv.innerHTML = "Analyzing article...";
+
+  const response = await fetch("YOUR_WORKER_URL",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({url:url})
+  });
+
+  const data = await response.json();
+
+  if(data.error){
+    resultDiv.innerHTML = "Error analyzing article.";
+    return;
+  }
+
+  let color = "#00ff88";
+  if(data.credibilityScore < 50) color = "#ff4d4d";
+  else if(data.credibilityScore < 70) color = "#ffcc00";
+
+  resultDiv.innerHTML = `
+    <div class="card">
+      <h2>${data.label}</h2>
+      <p>Confidence: ${data.confidence}%</p>
+      <p>Credibility Score: ${data.credibilityScore}/100</p>
+
+      <div class="progress">
+        <div class="progress-bar" style="width:${data.credibilityScore}%; background:${color};"></div>
+      </div>
+
+      <p>${data.summary}</p>
+    </div>
+  `;
+}
+</script>
+</body>
+</html>
